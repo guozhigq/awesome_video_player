@@ -1,11 +1,9 @@
 import 'dart:async';
 
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:screen/screen.dart';
-import 'package:battery/battery.dart';
-import 'package:video_player/video_player.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
+import 'package:battery_plus/battery_plus.dart';
 
 import '../../../awesome_video_player.dart';
 import '../controls/linear_progress_bar.dart';
@@ -15,26 +13,26 @@ import '../loading/video_loading_view.dart';
 typedef VideoCallback<T> = void Function(T t);
 
 class PlayerControls extends StatefulWidget {
-  PlayerControls(
-      {Key key,
-      this.videoStyle,
-      this.onpop,
-      this.ontimeupdate,
-      this.onended,
-      this.onprogressdragStart,
-      this.onprogressdragUpdate,
-      this.onprogressdragEnd,
-      this.children})
-      : super(key: key);
+  const PlayerControls({
+    Key? key,
+    this.videoStyle,
+    this.onpop,
+    this.ontimeupdate,
+    this.onended,
+    this.onprogressdragStart,
+    this.onprogressdragUpdate,
+    this.onprogressdragEnd,
+    this.children,
+  }) : super(key: key);
 
-  final VideoStyle videoStyle;
-  final VideoCallback onpop;
-  final VideoCallback ontimeupdate;
-  final VideoCallback onended;
-  final Function onprogressdragStart;
-  final Function(Duration, Duration) onprogressdragUpdate;
-  final Function onprogressdragEnd;
-  final List<Widget> children;
+  final VideoStyle? videoStyle;
+  final VideoCallback? onpop;
+  final VideoCallback<VideoPlayerValue>? ontimeupdate;
+  final VideoCallback? onended;
+  final Function? onprogressdragStart;
+  final Function(Duration, Duration)? onprogressdragUpdate;
+  final Function? onprogressdragEnd;
+  final List<Widget>? children;
 
   @override
   State<StatefulWidget> createState() {
@@ -44,20 +42,20 @@ class PlayerControls extends StatefulWidget {
 
 class _PlayerControlsState extends State<PlayerControls>
     with SingleTickerProviderStateMixin {
-  VideoPlayerValue _latestValue;
-  VideoPlayerController controller;
-  AwesomeVideoController awesomeController;
+  VideoPlayerValue? _latestValue;
+  VideoPlayerController? controller;
+  AwesomeVideoController? awesomeController;
 
-  AnimationController controlBarAnimationController;
-  Animation<double> controlTopBarAnimation;
-  Animation<double> controlBottomBarAnimation;
+  AnimationController? controlBarAnimationController;
+  Animation<double>? controlTopBarAnimation;
+  Animation<double>? controlBottomBarAnimation;
 
   /// 是否全屏
   bool fullscreened = false;
-  // bool initialized = false;
+  // bool isInitialized = false;
 
   /// 屏幕亮度
-  double brightness;
+  double? brightness;
   int batteryLevel = 0;
 
   /// 是否显示控制拦
@@ -67,12 +65,12 @@ class _PlayerControlsState extends State<PlayerControls>
     if (!_showMeau) {
       if (controlBarAnimationController != null) {
         _showMeau = value;
-        controlBarAnimationController.forward();
+        controlBarAnimationController!.forward();
       }
     } else {
       if (controlBarAnimationController != null) {
         _showMeau = value;
-        controlBarAnimationController.reverse();
+        controlBarAnimationController!.reverse();
       }
     }
   }
@@ -84,15 +82,15 @@ class _PlayerControlsState extends State<PlayerControls>
   bool isEnded = false;
   bool showSliderToast = false;
   bool showTextToast = false;
-  AlignmentGeometry toastPosition;
+  AlignmentGeometry? toastPosition;
   String toastText = "";
-  double toastVolumeValue;
-  double toastBrightnessValue;
+  double? toastVolumeValue;
+  double? toastBrightnessValue;
 
   String position = "--:--";
   String duration = "--:--";
   String networkType = "";
-  Timer showTime;
+  Timer? showTime;
 
   /// 显示或隐藏菜单栏
   void toggleControls() {
@@ -106,9 +104,9 @@ class _PlayerControlsState extends State<PlayerControls>
     }
     setState(() {
       // if (showMeau) {
-      //   controlBarAnimationController.forward();
+      //   controlBarAnimationController!.forward();
       // } else {
-      //   controlBarAnimationController.reverse();
+      //   controlBarAnimationController!.reverse();
       // }
     });
   }
@@ -117,12 +115,12 @@ class _PlayerControlsState extends State<PlayerControls>
     clearHideControlbarTimer();
 
     ///如果是播放状态5秒后自动隐藏
-    showTime = Timer(Duration(seconds: 5), () {
-      if (controller != null && _latestValue.isPlaying) {
+    showTime = Timer(const Duration(seconds: 5), () {
+      if (controller != null && _latestValue!.isPlaying) {
         if (showMeau) {
           setState(() {
             showMeau = false;
-            // controlBarAnimationController.reverse();
+            // controlBarAnimationController!.reverse();
           });
         }
       }
@@ -134,7 +132,7 @@ class _PlayerControlsState extends State<PlayerControls>
   }
 
   void togglePlay() {
-    awesomeController.togglePlay();
+    awesomeController!.togglePlay();
     if (!showMeau) {
       setState(() {
         showMeau = true;
@@ -146,59 +144,57 @@ class _PlayerControlsState extends State<PlayerControls>
   }
 
   void fastRewind(int seekSeconds) {
-    var currentPosition = _latestValue.position;
-    controller
+    var currentPosition = _latestValue!.position;
+    controller!
         .seekTo(Duration(seconds: currentPosition.inSeconds - seekSeconds));
   }
 
   void fastForward(int seekSeconds) {
-    var currentPosition = _latestValue.position;
-    controller
+    var currentPosition = _latestValue!.position;
+    controller!
         .seekTo(Duration(seconds: currentPosition.inSeconds + seekSeconds));
   }
 
   void toggleFullScreen() {
-    awesomeController.toggleFullScreen();
+    awesomeController!.toggleFullScreen();
   }
 
   //监听播放器状态变化
   void _handleVideoPlayerValue() {
-    _latestValue = controller.value;
+    _latestValue = controller!.value;
     if (_latestValue != null) {
-      if (_latestValue.position != null && _latestValue.duration != null) {
-        if (_latestValue.position >= _latestValue.duration) {
-          isEnded = true;
-          if (!showMeau) {
-            showMeau = true;
-            // controlBarAnimationController.forward();
-          }
-          position = "--:--";
-          duration = "--:--";
-          clearHideControlbarTimer();
-          if (widget.onended != null) {
-            widget.onended(_latestValue);
-          }
-        } else {
-          var oPosition = _latestValue.position;
-          var oDuration = _latestValue.duration;
+      if (_latestValue!.position >= _latestValue!.duration) {
+        isEnded = true;
+        if (!showMeau) {
+          showMeau = true;
+          // controlBarAnimationController.forward();
+        }
+        position = "--:--";
+        duration = "--:--";
+        clearHideControlbarTimer();
+        if (widget.onended != null) {
+          widget.onended!(_latestValue);
+        }
+      } else {
+        var oPosition = _latestValue!.position;
+        var oDuration = _latestValue!.duration;
 
-          if (oDuration.inHours == 0) {
-            var strPosition = oPosition.toString().split('.')[0];
-            var strDuration = oDuration.toString().split('.')[0];
-            position =
-                "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
-            duration =
-                "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
-          } else {
-            position = oPosition.toString().split('.')[0];
-            duration = oDuration.toString().split('.')[0];
-          }
-          if (widget.ontimeupdate != null) {
-            widget.ontimeupdate(_latestValue);
-          }
-          if (isEnded) {
-            isEnded = false;
-          }
+        if (oDuration.inHours == 0) {
+          var strPosition = oPosition.toString().split('.')[0];
+          var strDuration = oDuration.toString().split('.')[0];
+          position =
+              "${strPosition.split(':')[1]}:${strPosition.split(':')[2]}";
+          duration =
+              "${strDuration.split(':')[1]}:${strDuration.split(':')[2]}";
+        } else {
+          position = oPosition.toString().split('.')[0];
+          duration = oDuration.toString().split('.')[0];
+        }
+        if (widget.ontimeupdate != null) {
+          widget.ontimeupdate!(_latestValue!);
+        }
+        if (isEnded) {
+          isEnded = false;
         }
       }
     }
@@ -206,26 +202,26 @@ class _PlayerControlsState extends State<PlayerControls>
   }
 
   //初始化播放器
-  Future<Null> initPlayer() async {
-    controller.addListener(_handleVideoPlayerValue);
+  Future<void> initPlayer() async {
+    controller!.addListener(_handleVideoPlayerValue);
 
     _handleVideoPlayerValue();
 
-    /// 控制拦动画
+    /// 控制栏动画
     controlBarAnimationController = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     controlTopBarAnimation = Tween(
-            begin: -(widget.videoStyle.videoTopBarStyle.height +
-                widget.videoStyle.videoTopBarStyle.margin.vertical * 2),
+            begin: -(widget.videoStyle!.videoTopBarStyle.height +
+                widget.videoStyle!.videoTopBarStyle.margin.vertical * 2),
             end: 0.0)
-        .animate(controlBarAnimationController);
+        .animate(controlBarAnimationController!);
     controlBottomBarAnimation = Tween(
-            begin: -(widget.videoStyle.videoTopBarStyle.height +
+            begin: -(widget.videoStyle!.videoTopBarStyle.height +
                 (fullscreened ? MediaQuery.of(context).padding.bottom : 0) +
-                widget.videoStyle.videoControlBarStyle.margin.vertical * 2),
+                widget.videoStyle!.videoControlBarStyle.margin.vertical * 2),
             end: 0.0 +
                 (fullscreened ? MediaQuery.of(context).padding.bottom : 0))
-        .animate(controlBarAnimationController);
+        .animate(controlBarAnimationController!);
 
     // network type
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -253,13 +249,13 @@ class _PlayerControlsState extends State<PlayerControls>
       } else if (state == BatteryState.discharging) {}
     });
 
-    if (awesomeController.options.showControlsOnInitialize) {
+    if (awesomeController!.options.showControlsOnInitialize) {
       if (!showMeau) {
         setState(() {
           showMeau = true;
           // controlBarAnimationController.forward();
-          if ((_latestValue != null && _latestValue.isPlaying) ||
-              awesomeController.options.autoPlay) {
+          if ((_latestValue != null && _latestValue!.isPlaying) ||
+              awesomeController!.options.autoPlay) {
             createHideControlbarTimer();
           }
         });
@@ -268,7 +264,7 @@ class _PlayerControlsState extends State<PlayerControls>
   }
 
   void destoryPlayer() {
-    controller.removeListener(_handleVideoPlayerValue);
+    controller!.removeListener(_handleVideoPlayerValue);
     showTime?.cancel();
     clearHideControlbarTimer();
   }
@@ -278,7 +274,7 @@ class _PlayerControlsState extends State<PlayerControls>
     final _oldController = awesomeController;
     awesomeController =
         ChangeNotifierProvider.of<AwesomeVideoController>(context);
-    controller = awesomeController.videoPlayerController;
+    controller = awesomeController!.videoPlayerController;
 
     if (_oldController != awesomeController) {
       destoryPlayer();
@@ -296,8 +292,8 @@ class _PlayerControlsState extends State<PlayerControls>
 
   @override
   Widget build(BuildContext context) {
-    if (_latestValue.hasError) {
-      return Center(
+    if (_latestValue!.hasError) {
+      return const Center(
         child: Icon(
           Icons.error,
           color: Colors.white,
@@ -312,7 +308,7 @@ class _PlayerControlsState extends State<PlayerControls>
         children: <Widget>[
           Center(
             child: AspectRatio(
-              aspectRatio: awesomeController.options.aspectRatio ??
+              aspectRatio: awesomeController!.options.aspectRatio ??
                   _calculateAspectRatio(context),
               // child: VideoPlayer(awesomeController.videoPlayerController),
               child: GestureDetector(
@@ -323,23 +319,23 @@ class _PlayerControlsState extends State<PlayerControls>
                   },
                   //双击
                   onDoubleTap: () {
-                    if (!_latestValue.initialized) return;
+                    if (!_latestValue!.isInitialized) return;
                     togglePlay();
                   },
 
                   /// 水平滑动 - 调节视频进度
                   onHorizontalDragStart: (DragStartDetails details) {
-                    if (!_latestValue.initialized) return;
+                    if (!_latestValue!.isInitialized) return;
                     setState(() {
                       showTextToast = true;
                       toastPosition = Alignment.center;
                     });
-                    if (_latestValue.isPlaying) {
-                      controller.pause();
+                    if (_latestValue!.isPlaying) {
+                      controller!.pause();
                     }
                   },
                   onHorizontalDragUpdate: (DragUpdateDetails details) {
-                    if (!_latestValue.initialized) return;
+                    if (!_latestValue!.isInitialized) return;
                     if (!showMeau) {
                       setState(() {
                         showMeau = true;
@@ -347,17 +343,20 @@ class _PlayerControlsState extends State<PlayerControls>
                       createHideControlbarTimer();
                     }
                     //往右滑动
-                    if (details.primaryDelta > 0) {
-                      if (_latestValue.position >= _latestValue.duration) {
+                    if (details.primaryDelta! > 0) {
+                      if (_latestValue!.position >= _latestValue!.duration) {
                         setState(() {
                           showTextToast = false;
                         });
                         return;
                       }
                       fastForward(
-                          awesomeController.options.progressGestureUnit);
+                          (awesomeController!.options.progressGestureUnit)
+                              .toInt());
                     } else {
-                      fastRewind(awesomeController.options.progressGestureUnit);
+                      fastRewind(
+                          (awesomeController!.options.progressGestureUnit)
+                              .toInt());
                     }
                     toastText = "$position / $duration";
                   },
@@ -366,97 +365,97 @@ class _PlayerControlsState extends State<PlayerControls>
                       showTextToast = false;
                       toastText = "";
                     });
-                    if (!_latestValue.isPlaying) {
-                      controller.play();
+                    if (!_latestValue!.isPlaying) {
+                      controller!.play();
                     }
                   },
 
                   /// 垂直滑动 - 调节亮度以及音量
                   onVerticalDragStart: (DragStartDetails details) {
-                    if (!_latestValue.initialized) return;
+                    if (!_latestValue!.isInitialized) return;
                     setState(() {
                       showSliderToast = true;
                     });
                   },
                   onVerticalDragUpdate: (DragUpdateDetails details) async {
-                    if (!_latestValue.initialized) return;
+                    if (!_latestValue!.isInitialized) return;
                     // 右侧垂直滑动 - 音量调节
                     if (details.globalPosition.dx >=
                         (MediaQuery.of(context).size.width / 2)) {
                       double vol;
-                      if (details.primaryDelta > 0) {
+                      if (details.primaryDelta! > 0) {
                         //往下滑动
-                        if (_latestValue.volume <= 0) {
+                        if (_latestValue!.volume <= 0) {
                           vol = 0;
                         } else {
-                          vol = _latestValue.volume -
-                                      awesomeController
+                          vol = _latestValue!.volume -
+                                      awesomeController!
                                           .options.volumeGestureUnit <=
                                   0
                               ? 0
-                              : _latestValue.volume -
-                                  awesomeController.options.volumeGestureUnit;
+                              : _latestValue!.volume -
+                                  awesomeController!.options.volumeGestureUnit;
                         }
                         // if (widget.onvolume != null) {
                         //   widget.onvolume(vol);
                         // }
                       } else {
                         //往上滑动
-                        if (_latestValue.volume >= 1) {
+                        if (_latestValue!.volume >= 1) {
                           vol = 1;
                         } else {
-                          vol = _latestValue.volume +
-                              awesomeController.options.volumeGestureUnit;
+                          vol = _latestValue!.volume +
+                              awesomeController!.options.volumeGestureUnit;
                         }
                         // if (widget.onvolume != null) {
                         //   widget.onvolume(vol);
                         // }
                       }
-                      controller.setVolume(vol);
+                      controller!.setVolume(vol);
                       toastPosition = Alignment.centerRight;
                       setState(() {
                         toastVolumeValue = vol;
                       });
                     } else {
                       // 左侧垂直滑动 - 亮度调节
-                      if (brightness == null) {
-                        brightness = await Screen.brightness;
-                      }
-                      if (details.primaryDelta > 0) {
-                        //往下滑动
-                        if (brightness <= 0) {
-                          brightness = 0;
-                        } else {
-                          brightness = brightness -
-                                      awesomeController
-                                          .options.brightnessGestureUnit <=
-                                  0
-                              ? 0
-                              : brightness -
-                                  awesomeController
-                                      .options.brightnessGestureUnit;
-                        }
-                        // if (widget.onbrightness != null) {
-                        //   widget.onbrightness(brightness);
-                        // }
-                      } else {
-                        //往上滑动
-                        if (brightness >= 1) {
-                          brightness = 1;
-                        } else {
-                          brightness +=
-                              awesomeController.options.brightnessGestureUnit;
-                        }
-                        // if (widget.onbrightness != null) {
-                        //   widget.onbrightness(brightness);
-                        // }
-                      }
-                      setState(() {
-                        toastPosition = Alignment.centerLeft;
-                        toastBrightnessValue = brightness;
-                      });
-                      Screen.setBrightness(brightness);
+                      brightness = brightness ??
+                          await DeviceDisplayBrightness.getBrightness();
                     }
+                    if (details.primaryDelta! > 0) {
+                      //往下滑动
+                      if (brightness! <= 0) {
+                        brightness = 0;
+                      } else {
+                        brightness = brightness! -
+                                    awesomeController!
+                                        .options.brightnessGestureUnit <=
+                                0
+                            ? 0
+                            : brightness! -
+                                awesomeController!
+                                    .options.brightnessGestureUnit;
+                      }
+                      // if (widget.onbrightness != null) {
+                      //   widget.onbrightness(brightness);
+                      // }
+                    } else {
+                      //往上滑动
+                      if (brightness! >= 1) {
+                        brightness = 1;
+                      } else {
+                        brightness = brightness! +
+                            awesomeController!.options.brightnessGestureUnit;
+                      }
+                      // if (widget.onbrightness != null) {
+                      //   widget.onbrightness(brightness);
+                      // }
+                    }
+                    setState(() {
+                      toastPosition = Alignment.centerLeft;
+                      toastBrightnessValue = brightness;
+                    });
+                    DeviceDisplayBrightness.setBrightness(brightness!);
+                    // Screen.setBrightness(brightness);
                   },
                   onVerticalDragEnd: (DragEndDetails details) {
                     setState(() {
@@ -474,9 +473,9 @@ class _PlayerControlsState extends State<PlayerControls>
                     color: Colors.black,
                     child: Center(
                         child: AspectRatio(
-                      aspectRatio: awesomeController.options.aspectRatio ??
+                      aspectRatio: awesomeController!.options.aspectRatio ??
                           _calculateAspectRatio(context),
-                      child: VideoPlayer(controller),
+                      child: VideoPlayer(controller!),
                     )),
                   ))),
             ),
@@ -484,9 +483,9 @@ class _PlayerControlsState extends State<PlayerControls>
           //封面
           // awesomeController.overlay ?? Container(),
           //
-          _buildTopControlBar(controlTopBarAnimation, context),
+          _buildTopControlBar(controlTopBarAnimation!, context),
           //
-          _buildBottomControlBar(controlBottomBarAnimation, context),
+          _buildBottomControlBar(controlBottomBarAnimation!, context),
           //
           _buildReplayBtn(context),
           //
@@ -515,15 +514,15 @@ class _PlayerControlsState extends State<PlayerControls>
     double containerPadding = 0;
     double width = MediaQuery.of(context).size.width;
 
-    if (awesomeController.isFullScreen && width > 414) {
+    if (awesomeController!.isFullScreen && width > 414) {
       width = width - width * 0.8;
       containerPadding = width / 2;
     }
     return AnimatedBuilder(
         animation: animation,
         builder: (context, child) {
-          return awesomeController.options.showControls
-              ? widget.videoStyle.videoTopBarStyle.customBar ??
+          return awesomeController!.options.showControls
+              ? widget.videoStyle!.videoTopBarStyle.customBar ??
                   //顶部状态栏
                   Positioned(
                     top: animation.value,
@@ -532,15 +531,15 @@ class _PlayerControlsState extends State<PlayerControls>
                     child: Container(
                       alignment: Alignment.center,
                       width: double.infinity,
-                      margin: widget.videoStyle.videoTopBarStyle.margin,
-                      padding: widget.videoStyle.videoTopBarStyle.padding,
+                      margin: widget.videoStyle!.videoTopBarStyle.margin,
+                      padding: widget.videoStyle!.videoTopBarStyle.padding,
                       child: Column(
                         children: <Widget>[
-                          awesomeController.isFullScreen
+                          awesomeController!.isFullScreen
                               ? Row(
                                   children: <Widget>[
                                     Text(networkType,
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             color: Colors.white, fontSize: 12)),
                                     Expanded(
                                       child: Container(
@@ -550,17 +549,17 @@ class _PlayerControlsState extends State<PlayerControls>
                                                 .toString()
                                                 .split(" ")[1]
                                                 .substring(0, 5),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 color: Colors.white,
                                                 fontSize: 12)),
                                       ),
                                     ),
                                     Row(children: <Widget>[
-                                      Text(batteryLevel.toString() + "%",
-                                          style: TextStyle(
+                                      Text("$batteryLevel%",
+                                          style: const TextStyle(
                                               color: Colors.white,
                                               fontSize: 12)),
-                                      Icon(
+                                      const Icon(
                                         // Icons.battery_alert,
                                         // Icons.battery_charging_full,
                                         // Icons.battery_full,
@@ -581,17 +580,17 @@ class _PlayerControlsState extends State<PlayerControls>
                               /// 返回按钮
                               GestureDetector(
                                 onTap: () {
-                                  if (awesomeController.isFullScreen) {
+                                  if (awesomeController!.isFullScreen) {
                                     // Navigator.of(context, rootNavigator: true).pop();
-                                    awesomeController.toggleFullScreen();
+                                    awesomeController!.toggleFullScreen();
                                   } else {
                                     if (widget.onpop != null) {
-                                      widget.onpop(null);
+                                      widget.onpop!(null);
                                     }
                                   }
                                 },
                                 child:
-                                    widget.videoStyle.videoTopBarStyle.popIcon,
+                                    widget.videoStyle!.videoTopBarStyle.popIcon,
                               ),
 
                               /// 中部控制栏
@@ -599,7 +598,7 @@ class _PlayerControlsState extends State<PlayerControls>
                                 child: Row(
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: widget
-                                      .videoStyle.videoTopBarStyle.contents,
+                                      .videoStyle!.videoTopBarStyle.contents,
                                 ),
                               ),
 
@@ -607,7 +606,7 @@ class _PlayerControlsState extends State<PlayerControls>
                               Row(
                                 crossAxisAlignment: CrossAxisAlignment.center,
                                 children:
-                                    widget.videoStyle.videoTopBarStyle.actions,
+                                    widget.videoStyle!.videoTopBarStyle.actions,
                               )
                             ],
                           )
@@ -627,53 +626,53 @@ class _PlayerControlsState extends State<PlayerControls>
     double containerPadding = 0;
     double width = MediaQuery.of(context).size.width;
 
-    if (awesomeController.isFullScreen && width > 414) {
+    if (awesomeController!.isFullScreen && width > 414) {
       width = width - width * 0.8;
       containerPadding = width / 2;
     }
 
     Widget _buildRewindBtn() {
       return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: GestureDetector(
             onTap: () {
-              fastRewind(awesomeController.options.seekSeconds);
+              fastRewind((awesomeController!.options.seekSeconds).toInt());
             },
-            child: widget.videoStyle.videoControlBarStyle.rewindIcon,
+            child: widget.videoStyle!.videoControlBarStyle.rewindIcon,
           ));
     }
 
     Widget _buildPlayOrPauseBtn() {
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
         child: GestureDetector(
           onTap: () {
             if (isEnded) return;
             togglePlay();
           },
-          child: _latestValue.isPlaying
-              ? widget.videoStyle.videoControlBarStyle.pauseIcon
-              : widget.videoStyle.videoControlBarStyle.playIcon,
+          child: _latestValue!.isPlaying
+              ? widget.videoStyle!.videoControlBarStyle.pauseIcon
+              : widget.videoStyle!.videoControlBarStyle.playIcon,
         ),
       );
     }
 
     Widget _buildReplayBtn() {
       return Padding(
-        padding: EdgeInsets.symmetric(horizontal: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 2),
         child: GestureDetector(
             onTap: () {
               if (isEnded) {
                 isEnded = false;
-                controller.seekTo(Duration(seconds: 0));
+                controller!.seekTo(const Duration(seconds: 0));
               }
               createHideControlbarTimer();
-              if (!_latestValue.isPlaying) {
-                controller.play();
+              if (!_latestValue!.isPlaying) {
+                controller!.play();
               }
             },
             child: Row(
-              children: <Widget>[
+              children: const <Widget>[
                 Icon(
                   Icons.replay,
                   size: 16,
@@ -691,50 +690,50 @@ class _PlayerControlsState extends State<PlayerControls>
 
     Widget _buildForwardBtn() {
       return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: GestureDetector(
             onTap: () {
-              fastForward(awesomeController.options.seekSeconds);
+              fastForward((awesomeController!.options.seekSeconds).toInt());
             },
-            child: widget.videoStyle.videoControlBarStyle.forwardIcon,
+            child: widget.videoStyle!.videoControlBarStyle.forwardIcon,
           ));
     }
 
     Widget _buildProgress() {
       return Expanded(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 4),
-          child: VideoLinearProgressBar(controller,
-              allowScrubbing: awesomeController.options.allowScrubbing,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          child: VideoLinearProgressBar(controller!,
+              allowScrubbing: awesomeController!.options.allowScrubbing,
               onprogressdragStart: () {
             setState(() {
               showTextToast = true;
             });
-            if (_latestValue.isPlaying) {
-              controller.pause();
+            if (_latestValue!.isPlaying) {
+              controller!.pause();
             }
             if (widget.onprogressdragStart != null) {
-              widget.onprogressdragStart();
+              widget.onprogressdragStart!();
             }
           }, onprogressdragUpdate: (Duration position, Duration duration) {
             if (widget.onprogressdragUpdate != null) {
-              widget.onprogressdragUpdate(position, duration);
+              widget.onprogressdragUpdate!(position, duration);
             }
           }, onprogressdragEnd: () {
             setState(() {
               showTextToast = false;
             });
-            if (!_latestValue.isPlaying) {
-              controller.play();
+            if (!_latestValue!.isPlaying!) {
+              controller!.play();
             }
             if (widget.onprogressdragEnd != null) {
-              widget.onprogressdragEnd();
+              widget.onprogressdragEnd!();
             }
           },
               padding:
-                  widget.videoStyle.videoControlBarStyle.progressStyle.padding,
+                  widget.videoStyle!.videoControlBarStyle.progressStyle.padding,
               progressStyle:
-                  widget.videoStyle.videoControlBarStyle.progressStyle),
+                  widget.videoStyle!.videoControlBarStyle.progressStyle),
         ),
       );
     }
@@ -742,24 +741,24 @@ class _PlayerControlsState extends State<PlayerControls>
     Widget _buildBasicProgress() {
       return Expanded(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 4),
           child: VideoDefaultProgressBar(controller,
-              allowScrubbing: awesomeController.options.allowScrubbing,
+              allowScrubbing: awesomeController!.options.allowScrubbing,
               // onprogressdrag: widget.onprogressdrag,
               progressStyle:
-                  widget.videoStyle.videoControlBarStyle.progressStyle),
+                  widget.videoStyle!.videoControlBarStyle.progressStyle),
         ),
       );
     }
 
     Widget _buildTime() {
       return Padding(
-        padding: widget.videoStyle.videoControlBarStyle.timePadding,
+        padding: widget.videoStyle!.videoControlBarStyle.timePadding,
         child: Text(
           "$position / $duration",
           style: TextStyle(
-            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
-            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
+            color: widget.videoStyle!.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle!.videoControlBarStyle.timeFontSize,
           ),
         ),
       );
@@ -767,12 +766,12 @@ class _PlayerControlsState extends State<PlayerControls>
 
     Widget _buildPositionTime() {
       return Padding(
-        padding: widget.videoStyle.videoControlBarStyle.timePadding,
+        padding: widget.videoStyle!.videoControlBarStyle.timePadding,
         child: Text(
-          "$position",
+          position,
           style: TextStyle(
-            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
-            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
+            color: widget.videoStyle!.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle!.videoControlBarStyle.timeFontSize,
           ),
         ),
       );
@@ -780,12 +779,12 @@ class _PlayerControlsState extends State<PlayerControls>
 
     Widget _buildDurationTime() {
       return Padding(
-        padding: widget.videoStyle.videoControlBarStyle.timePadding,
+        padding: widget.videoStyle!.videoControlBarStyle.timePadding,
         child: Text(
-          "$duration",
+          duration,
           style: TextStyle(
-            color: widget.videoStyle.videoControlBarStyle.timeFontColor,
-            fontSize: widget.videoStyle.videoControlBarStyle.timeFontSize,
+            color: widget.videoStyle!.videoControlBarStyle.timeFontColor,
+            fontSize: widget.videoStyle!.videoControlBarStyle.timeFontSize,
           ),
         ),
       );
@@ -793,12 +792,12 @@ class _PlayerControlsState extends State<PlayerControls>
 
     Widget _buildFullscreen() {
       return Padding(
-          padding: EdgeInsets.symmetric(horizontal: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 2),
           child: GestureDetector(
             onTap: toggleFullScreen,
-            child: awesomeController.isFullScreen
-                ? widget.videoStyle.videoControlBarStyle.fullscreenExitIcon
-                : widget.videoStyle.videoControlBarStyle.fullscreenIcon,
+            child: awesomeController!.isFullScreen
+                ? widget.videoStyle!.videoControlBarStyle.fullscreenExitIcon
+                : widget.videoStyle!.videoControlBarStyle.fullscreenIcon,
           ));
     }
 
@@ -822,11 +821,11 @@ class _PlayerControlsState extends State<PlayerControls>
       };
 
       List<Widget> videoProgressChildrens = [];
-      var userSpecifyItem = widget.videoStyle.videoControlBarStyle.itemList;
+      var userSpecifyItem = widget.videoStyle!.videoControlBarStyle.itemList;
       // var userSpecifyItem = !isEnded ? widget.videoStyle.videoControlBarStyle.itemList : ["replay"];
 
       for (var i = 0; i < userSpecifyItem.length; i++) {
-        videoProgressChildrens.add(videoProgressWidgets[userSpecifyItem[i]]);
+        videoProgressChildrens.add(videoProgressWidgets[userSpecifyItem[i]]!);
       }
 
       return videoProgressChildrens;
@@ -836,16 +835,17 @@ class _PlayerControlsState extends State<PlayerControls>
     return AnimatedBuilder(
         animation: animation,
         builder: (context, child) {
-          return awesomeController.options.showControls
-              ? widget.videoStyle.videoTopBarStyle.customBar ??
+          return awesomeController!.options.showControls
+              ? widget.videoStyle!.videoTopBarStyle.customBar ??
                   Positioned(
                       bottom: animation.value,
                       left: containerPadding,
                       right: containerPadding,
                       child: Container(
-                        margin: widget.videoStyle.videoControlBarStyle.margin,
-                        padding: widget.videoStyle.videoControlBarStyle.padding,
-                        height: widget.videoStyle.videoControlBarStyle.height,
+                        margin: widget.videoStyle!.videoControlBarStyle.margin,
+                        padding:
+                            widget.videoStyle!.videoControlBarStyle.padding,
+                        height: widget.videoStyle!.videoControlBarStyle.height,
                         // decoration: BoxDecoration(
                         //     gradient: LinearGradient(
                         //   colors: [Colors.transparent, videoControlBarStyle.barBackgroundColor],
@@ -870,31 +870,31 @@ class _PlayerControlsState extends State<PlayerControls>
         onTap: () {
           if (isEnded) {
             isEnded = false;
-            controller.seekTo(Duration(seconds: 0));
+            controller!.seekTo(const Duration(seconds: 0));
           }
           createHideControlbarTimer();
-          if (!_latestValue.isPlaying) {
-            controller.play();
+          if (!_latestValue!.isPlaying) {
+            controller!.play();
           }
         },
-        child: _latestValue != null && !_latestValue.isPlaying
+        child: _latestValue != null && !_latestValue!.isPlaying
             ? Container(
                 // decoration: BoxDecoration(
                 //   color: Theme.of(context).dialogBackgroundColor,
                 //   borderRadius: BorderRadius.circular(48.0),
                 // ),
                 child: Padding(
-                  padding: EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(12.0),
                   child: isEnded
-                      ? widget.videoStyle.replayIcon
-                      : widget.videoStyle.showPlayIcon &&
+                      ? widget.videoStyle!.replayIcon
+                      : widget.videoStyle!.showPlayIcon &&
                               !showTextToast &&
-                              _latestValue.initialized
-                          ? widget.videoStyle.playIcon
-                          : Text(""),
+                              _latestValue!.isInitialized
+                          ? widget.videoStyle!.playIcon
+                          : const Text(""),
                 ),
               )
-            : Text(""),
+            : const Text(""),
       ),
     );
   }
@@ -906,12 +906,12 @@ class _PlayerControlsState extends State<PlayerControls>
         alignment: Alignment.center,
         child: Padding(
           // padding: EdgeInsets.only(bottom: MediaQuery.of(context).size.width / 3),
-          padding: EdgeInsets.all(0),
+          padding: const EdgeInsets.all(0),
           child: Container(
             width: 150,
             height: 50,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               color: Color(0x7f000000),
               borderRadius: BorderRadius.all(Radius.circular(10.0)),
             ),
@@ -920,7 +920,7 @@ class _PlayerControlsState extends State<PlayerControls>
               children: <Widget>[
                 Text(
                   toastText,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 18,
                   ),
@@ -938,7 +938,7 @@ class _PlayerControlsState extends State<PlayerControls>
           width: 100,
           height: 100,
           alignment: Alignment.center,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Color(0x7f000000),
             borderRadius: BorderRadius.all(Radius.circular(10.0)),
           ),
@@ -953,17 +953,12 @@ class _PlayerControlsState extends State<PlayerControls>
                 size: 25,
               ),
               Padding(
-                padding: EdgeInsets.all(5.0),
+                padding: const EdgeInsets.all(5.0),
                 child: Text(
-                    ((toastBrightnessValue != null
-                                ? toastBrightnessValue
-                                : toastVolumeValue != null
-                                    ? toastVolumeValue
-                                    : 0) *
-                            100)
+                    ((toastBrightnessValue ?? (toastVolumeValue ?? 0)) * 100)
                         .clamp(0, 100)
                         .toStringAsFixed(0),
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                     )),
@@ -979,10 +974,10 @@ class _PlayerControlsState extends State<PlayerControls>
 
   Widget _buildLoadingView(BuildContext context) {
     return _latestValue != null &&
-                !_latestValue.isPlaying &&
-                _latestValue.duration == null ||
-            (!_latestValue.isPlaying && _latestValue.isBuffering)
-        ? VideoLoadingView(loadingStyle: widget.videoStyle.videoLoadingStyle)
-        : Text("");
+                !_latestValue!.isPlaying &&
+                _latestValue!.duration == null ||
+            (!_latestValue!.isPlaying && _latestValue!.isBuffering)
+        ? VideoLoadingView(loadingStyle: widget.videoStyle!.videoLoadingStyle)
+        : const Text("");
   }
 }

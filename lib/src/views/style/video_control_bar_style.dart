@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../style/video_progress_style.dart';
+import 'video_progress_style.dart';
 
 const double iconSize = 18;
 
@@ -9,7 +9,7 @@ class VideoControlBarStyle {
     this.height = 36,
     this.margin = const EdgeInsets.all(0),
     this.padding = const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-    VideoProgressStyle progressStyle, //进度条样式
+    VideoProgressStyle? progressStyle, //进度条样式
     this.playedColor = const Color.fromRGBO(255, 0, 0, 0.7), //几个版本后移除
     this.bufferedColor = const Color.fromRGBO(50, 50, 200, 0.2), //几个版本后移除
     this.backgroundColor = const Color.fromRGBO(200, 200, 200, 0.5), //几个版本后移除

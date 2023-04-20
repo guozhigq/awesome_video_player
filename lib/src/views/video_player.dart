@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
-import 'package:screen/screen.dart';
+import 'package:device_display_brightness/device_display_brightness.dart';
 
 import './style/video_style.dart';
 
@@ -17,8 +17,8 @@ typedef VideoCallback<T> = void Function(T t);
 
 class AwesomeVideoPlayer extends StatefulWidget {
   AwesomeVideoPlayer({
-    Key key,
-    this.controller,
+    Key? key,
+    required this.controller,
     this.children,
     this.onpop,
     this.ontimeupdate,
@@ -26,32 +26,32 @@ class AwesomeVideoPlayer extends StatefulWidget {
     this.onprogressdragStart,
     this.onprogressdragUpdate,
     this.onprogressdragEnd,
-    VideoStyle videoStyle,
-  })  : videoPlayerController = controller.videoPlayerController ?? null,
+    VideoStyle? videoStyle,
+  })  : videoPlayerController = controller.videoPlayerController,
         videoStyle = videoStyle ?? VideoStyle(),
         super(key: key);
 
   /// 播放自定义属性
-  final VideoStyle videoStyle;
+  final VideoStyle? videoStyle;
 
-  final List<Widget> children;
+  final List<Widget>? children;
 
   final AwesomeVideoController controller;
 
-  final VideoPlayerController videoPlayerController;
+  final VideoPlayerController? videoPlayerController;
 
-  //顶部控制栏点击返回回调
-  final VideoCallback<Null> onpop;
+  /// 顶部控制栏点击返回回调
+  final VideoCallback<dynamic>? onpop;
 
-  final VideoCallback<VideoPlayerValue> ontimeupdate;
+  final VideoCallback<VideoPlayerValue>? ontimeupdate;
 
-  final VideoCallback<VideoPlayerValue> onended;
+  final VideoCallback<VideoPlayerValue>? onended;
 
-  final Function onprogressdragStart;
+  final Function? onprogressdragStart;
 
-  final Function(Duration position, Duration duration) onprogressdragUpdate;
+  final Function(Duration position, Duration duration)? onprogressdragUpdate;
 
-  final Function onprogressdragEnd;
+  final Function? onprogressdragEnd;
 
   @override
   _AwesomeVideoPlayerState createState() => _AwesomeVideoPlayerState();
@@ -59,20 +59,20 @@ class AwesomeVideoPlayer extends StatefulWidget {
 
 class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     with SingleTickerProviderStateMixin {
-  AnimationController controlBarAnimationController;
-  Animation<double> controlTopBarAnimation;
-  Animation<double> controlBottomBarAnimation;
+  late AnimationController controlBarAnimationController;
+  late Animation<double> controlTopBarAnimation;
+  late Animation<double> controlBottomBarAnimation;
 
   bool _isFullScreen = false;
 
   /// 屏幕亮度
-  double brightness;
+  double? brightness;
 
   /// 是否显示控制拦
   bool showMeau = false;
 
   /// flag
-  Timer showTime;
+  Timer? showTime;
 
   @override
   void initState() {
@@ -87,13 +87,13 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     controlBarAnimationController = AnimationController(
         duration: const Duration(milliseconds: 300), vsync: this);
     controlTopBarAnimation = Tween(
-            begin: -(widget.videoStyle.videoTopBarStyle.height +
-                widget.videoStyle.videoTopBarStyle.margin.vertical * 2),
+            begin: -(widget.videoStyle!.videoTopBarStyle.height +
+                widget.videoStyle!.videoTopBarStyle.margin.vertical * 2),
             end: 0.0)
         .animate(controlBarAnimationController);
     controlBottomBarAnimation = Tween(
-            begin: -(widget.videoStyle.videoTopBarStyle.height +
-                widget.videoStyle.videoControlBarStyle.margin.vertical * 2),
+            begin: -(widget.videoStyle!.videoTopBarStyle.height +
+                widget.videoStyle!.videoControlBarStyle.margin.vertical * 2),
             end: 0.0)
         .animate(controlBarAnimationController);
   }
@@ -149,9 +149,9 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     clearHideControlbarTimer();
 
     //hide controls after 5 seconds
-    showTime = Timer(Duration(milliseconds: 5000), () {
+    showTime = Timer(const Duration(milliseconds: 5000), () {
       if (widget.videoPlayerController != null &&
-          widget.videoPlayerController.value.isPlaying) {
+          widget.videoPlayerController!.value.isPlaying) {
         if (showMeau) {
           setState(() {
             showMeau = false;
@@ -168,12 +168,13 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
   }
 
   Future<dynamic> _pushFullScreenWidget(BuildContext context) async {
-    final isAndroid = Theme.of(context).platform == TargetPlatform.android;
-    final TransitionRoute<Null> route = PageRouteBuilder<Null>(
+    // final isAndroid = Theme.of(context).platform == TargetPlatform.android;
+    final TransitionRoute<void> route = PageRouteBuilder<void>(
       pageBuilder: _fullScreenRoutePageBuilder,
     );
 
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: [SystemUiOverlay.top]);
     // if (isAndroid) {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.landscapeLeft,
@@ -181,8 +182,9 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     ]);
     // }
 
+    // 屏幕常亮
     if (!widget.controller.options.allowedScreenSleep) {
-      Screen.keepOn(true);
+      DeviceDisplayBrightness.keepOn(enabled: true);
     }
 
     //root根页面不能右滑退出页面
@@ -190,10 +192,11 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     _isFullScreen = false;
     widget.controller.exitFullScreen();
 
-    Screen.keepOn(false);
+    // 关闭屏幕常亮
+    DeviceDisplayBrightness.keepOn(enabled: false);
 
-    SystemChrome.setEnabledSystemUIOverlays(
-        widget.controller.options.systemOverlaysAfterFullScreen);
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: widget.controller.options.systemOverlaysAfterFullScreen);
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
     ]);
@@ -204,22 +207,24 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<AwesomeVideoController>(
-        data: widget.controller,
-        child: PlayerWithControls(
-            videoStyle: widget.videoStyle,
-            onpop: widget.onpop,
-            ontimeupdate: widget.ontimeupdate,
-            onended: widget.onended,
-            onprogressdragStart: widget.onprogressdragStart,
-            onprogressdragUpdate: widget.onprogressdragUpdate,
-            onprogressdragEnd: widget.onprogressdragEnd,
-            children: widget.children));
+      data: widget.controller,
+      child: PlayerWithControls(
+        videoStyle: widget.videoStyle,
+        onpop: widget.onpop,
+        ontimeupdate: widget.ontimeupdate,
+        onended: widget.onended,
+        onprogressdragStart: widget.onprogressdragStart,
+        onprogressdragUpdate: widget.onprogressdragUpdate,
+        onprogressdragEnd: widget.onprogressdragEnd,
+        children: widget.children,
+      ),
+    );
   }
 
   Widget _buildFullScreenVideo(BuildContext context,
       Animation<double> animation, ChangeNotifierProvider controllerProvider) {
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      // resizeToAvoidBottomPadding: false,
       body: Container(
         alignment: Alignment.center,
         color: Colors.black,
@@ -235,7 +240,7 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
       ChangeNotifierProvider controllerProvider) {
     return AnimatedBuilder(
       animation: animation,
-      builder: (BuildContext context, Widget child) {
+      builder: (BuildContext context, Widget? child) {
         return _buildFullScreenVideo(context, animation, controllerProvider);
       },
     );
@@ -249,14 +254,15 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
     var controllerProvider = ChangeNotifierProvider<AwesomeVideoController>(
       data: widget.controller,
       child: PlayerWithControls(
-          videoStyle: widget.videoStyle,
-          onpop: widget.onpop,
-          ontimeupdate: widget.ontimeupdate,
-          onended: widget.onended,
-          onprogressdragStart: widget.onprogressdragStart,
-          onprogressdragUpdate: widget.onprogressdragUpdate,
-          onprogressdragEnd: widget.onprogressdragEnd,
-          children: widget.children),
+        videoStyle: widget.videoStyle,
+        onpop: widget.onpop,
+        ontimeupdate: widget.ontimeupdate,
+        onended: widget.onended,
+        onprogressdragStart: widget.onprogressdragStart,
+        onprogressdragUpdate: widget.onprogressdragUpdate,
+        onprogressdragEnd: widget.onprogressdragEnd,
+        children: widget.children,
+      ),
     );
 
     return _defaultRoutePageBuilder(

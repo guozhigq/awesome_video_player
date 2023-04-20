@@ -15,6 +15,6 @@ class VideoSubtitles {
   final Color mainTitleColor;
   final double subTitleFontSize;
   final Color subTitleColor;
-  final Widget mianTitle; //主字幕
-  final Widget subTitle; //副字幕
+  final Widget? mianTitle; //主字幕
+  final Widget? subTitle; //副字幕
 }

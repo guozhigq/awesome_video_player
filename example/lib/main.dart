@@ -10,11 +10,11 @@ class AwesomeVideoPlayerPage extends StatefulWidget {
 }
 
 class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
-  AwesomeVideoValue videoPlayerOptions;
+  late AwesomeVideoValue videoPlayerOptions;
 
-  AwesomeVideoController awesomeController;
+  late AwesomeVideoController awesomeController;
 
-  VideoPlayerController controller;
+  late VideoPlayerController controller;
 
   double playerVolume = 1.0;
 
@@ -26,11 +26,11 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
   bool showAdvertCover = false; //是否显示广告
 
   void updateSource() {
-    awesomeController?.dispose();
-    controller?.pause();
-    controller?.seekTo(Duration(seconds: 0));
-    controller = VideoPlayerController.network(
-        "https://yun.zxziyuan-yun.com/20180221/4C6ivf8O/index.m3u8");
+    awesomeController.dispose();
+    controller.pause();
+    controller.seekTo(const Duration(seconds: 0));
+    controller =
+        VideoPlayerController.network("https://abc.com/20230114/mixed.m3u8");
     awesomeController = AwesomeVideoController(
         videoPlayerController: controller, options: videoPlayerOptions);
   }
@@ -40,13 +40,14 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
     super.initState();
 
     videoPlayerOptions = AwesomeVideoValue(
-        autoInitialize: true,
-        autoPlay: true,
-        loop: false,
-        allowScrubbing: true,
-        // startPosition: Duration(seconds: 11),
-        showControlsOnInitialize: false,
-        fullScreenByDefault: true);
+      autoInitialize: true,
+      autoPlay: true,
+      loop: false,
+      allowScrubbing: true,
+      // startPosition: Duration(seconds: 11),
+      showControlsOnInitialize: false,
+      fullScreenByDefault: false,
+    );
 
     controller = VideoPlayerController.network(
         "https://www.runoob.com/try/demo_source/movie.mp4");

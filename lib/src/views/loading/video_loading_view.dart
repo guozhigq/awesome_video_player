@@ -4,7 +4,7 @@ import '../style/video_loading_style.dart';
 class VideoLoadingView extends StatelessWidget {
   VideoLoadingView({this.loadingStyle});
 
-  final VideoLoadingStyle loadingStyle;
+  final VideoLoadingStyle? loadingStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -15,18 +15,17 @@ class VideoLoadingView extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            loadingStyle.customLoadingIcon != null
-                ? loadingStyle.customLoadingIcon
-                : CircularProgressIndicator(strokeWidth: 2.0),
-            loadingStyle.customLoadingText != null
-                ? loadingStyle.customLoadingText
+            loadingStyle!.customLoadingIcon ??
+                const CircularProgressIndicator(strokeWidth: 2.0),
+            loadingStyle!.customLoadingText != null
+                ? loadingStyle!.customLoadingText!
                 : Container(
-                    margin: EdgeInsets.only(top: 10),
+                    margin: const EdgeInsets.only(top: 10),
                     child: Text(
-                      loadingStyle.loadingText,
+                      loadingStyle!.loadingText,
                       style: TextStyle(
-                        color: loadingStyle.loadingTextFontColor,
-                        fontSize: loadingStyle.loadingTextFontSize,
+                        color: loadingStyle!.loadingTextFontColor,
+                        fontSize: loadingStyle!.loadingTextFontSize,
                       ),
                     ))
           ],

@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:battery/battery.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
@@ -29,13 +28,13 @@ class AwesomeVideoValue {
     this.brightnessGestureUnit = 0.05,
   });
 
-  final double aspectRatio;
+  final double? aspectRatio;
 
   final bool autoInitialize;
 
   final bool autoPlay;
 
-  final Duration startPosition;
+  final Duration? startPosition;
 
   final bool loop;
 
@@ -65,49 +64,67 @@ class AwesomeVideoValue {
 }
 
 class AwesomeVideoController extends ChangeNotifier {
-  VideoPlayerController videoPlayerController;
+  late VideoPlayerController videoPlayerController;
 
-  AwesomeVideoController(
-      {this.videoPlayerController, AwesomeVideoValue options})
-      : options = options ?? AwesomeVideoValue(),
-        assert(videoPlayerController != null,
-            'You must provide a controller to play a video') {
+  AwesomeVideoController({
+    required this.videoPlayerController,
+    required AwesomeVideoValue options,
+  }) : options = options ?? AwesomeVideoValue() {
     _initialize();
   }
 
-  AwesomeVideoController.network(this.dataSource,
-      {this.options, this.formatHint, this.closedCaptionFile}) {
-    this.options = this.options ?? AwesomeVideoValue();
-    this.videoPlayerController = VideoPlayerController.network(this.dataSource,
-        formatHint: this.formatHint, closedCaptionFile: this.closedCaptionFile);
+  AwesomeVideoController.network(
+    this.dataSource, {
+    required this.options,
+    required this.formatHint,
+    this.closedCaptionFile,
+  }) {
+    options = options ?? AwesomeVideoValue();
+    videoPlayerController = VideoPlayerController.network(
+      dataSource!,
+      formatHint: formatHint,
+      closedCaptionFile: closedCaptionFile,
+    );
     _initialize();
   }
 
-  AwesomeVideoController.asset(this.dataSource,
-      {this.options, this.package, this.closedCaptionFile}) {
-    this.options = this.options ?? AwesomeVideoValue();
-    this.videoPlayerController = VideoPlayerController.asset(this.dataSource,
-        package: this.package, closedCaptionFile: this.closedCaptionFile);
+  AwesomeVideoController.asset(
+    this.dataSource, {
+    required this.options,
+    this.package,
+    this.closedCaptionFile,
+  }) {
+    options = options ?? AwesomeVideoValue();
+    videoPlayerController = VideoPlayerController.asset(
+      dataSource!,
+      package: package,
+      closedCaptionFile: closedCaptionFile,
+    );
     _initialize();
   }
 
-  AwesomeVideoController.file(this.file,
-      {this.options, this.closedCaptionFile}) {
-    this.options = this.options ?? AwesomeVideoValue();
-    this.videoPlayerController = VideoPlayerController.file(this.file,
-        closedCaptionFile: this.closedCaptionFile);
+  AwesomeVideoController.file(
+    this.file, {
+    required this.options,
+    this.closedCaptionFile,
+  }) {
+    options = options ?? AwesomeVideoValue();
+    videoPlayerController = VideoPlayerController.file(
+      file!,
+      closedCaptionFile: closedCaptionFile,
+    );
     _initialize();
   }
 
-  String dataSource;
+  String? dataSource;
 
-  File file;
+  File? file;
 
   AwesomeVideoValue options;
 
   dynamic package;
 
-  VideoFormat formatHint;
+  VideoFormat? formatHint;
 
   dynamic closedCaptionFile;
 
@@ -121,7 +138,7 @@ class AwesomeVideoController extends ChangeNotifier {
     await videoPlayerController.setLooping(options.loop);
 
     if ((options.autoInitialize || options.autoPlay) &&
-        !videoPlayerController.value.initialized) {
+        !videoPlayerController.value.isInitialized) {
       await videoPlayerController.initialize();
     }
 
@@ -134,7 +151,7 @@ class AwesomeVideoController extends ChangeNotifier {
     }
 
     if (options.startPosition != null) {
-      await videoPlayerController.seekTo(options.startPosition);
+      await videoPlayerController.seekTo(options.startPosition!);
     }
 
     if (!options.autoPlay && options.fullScreenByDefault) {
@@ -149,24 +166,22 @@ class AwesomeVideoController extends ChangeNotifier {
     }
   }
 
-  // void createController(String sourceType, dynamic datasource, {AwesomeVideoValue options, formatHint, closedCaptionFile}) {
-  //   if (videoPlayerController != null) {
-  //     // videoPlayerController
-  //   } else {
-  //     _initialize();
-  //   }
+  // void createController(String sourceType, dynamic datasource,
+  //     {AwesomeVideoValue? options, formatHint, closedCaptionFile}) {
+  //   // videoPlayerController
+  //   _initialize();
   //   options = options ?? AwesomeVideoValue();
 
   //   if (sourceType == "file") {
   //     file = datasource;
-  //     videoPlayerController = VideoPlayerController.file(file,
-  //       closedCaptionFile: closedCaptionFile);
+  //     videoPlayerController = VideoPlayerController.file(file!,
+  //         closedCaptionFile: closedCaptionFile);
   //   } else if (sourceType == "network") {
-  //     videoPlayerController = VideoPlayerController.network(dataSource,
-  //       formatHint: formatHint, closedCaptionFile: closedCaptionFile);
+  //     videoPlayerController = VideoPlayerController.network(dataSource!,
+  //         formatHint: formatHint, closedCaptionFile: closedCaptionFile);
   //   } else if (sourceType == "asset") {
-  //     videoPlayerController = VideoPlayerController.asset(dataSource,
-  //       package: package, closedCaptionFile: closedCaptionFile);
+  //     videoPlayerController = VideoPlayerController.asset(dataSource!,
+  //         package: package, closedCaptionFile: closedCaptionFile);
   //   }
   // }
 
@@ -190,7 +205,7 @@ class AwesomeVideoController extends ChangeNotifier {
   }
 
   Future<void> play() async {
-    if (!videoPlayerController.value.initialized) {
+    if (!videoPlayerController.value.isInitialized) {
       await videoPlayerController.initialize();
     }
     if (isPlaying ||
@@ -223,36 +238,27 @@ class AwesomeVideoController extends ChangeNotifier {
   }
 
   void updateVideoSource(dataSource) {
-    if (videoPlayerController != null) {
-      videoPlayerController.pause();
-      videoPlayerController.seekTo(Duration(seconds: 0));
-      videoPlayerController.value = VideoPlayerValue.uninitialized();
-      final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
-      // final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
-      final isNetwork = netRegx.hasMatch(dataSource);
-      if (isNetwork) {
-        videoPlayerController = VideoPlayerController.network(dataSource,
-            formatHint: formatHint, closedCaptionFile: closedCaptionFile);
-      } else if (dataSource is File) {
-        videoPlayerController = VideoPlayerController.file(file,
-            closedCaptionFile: closedCaptionFile);
-      }
-
-      notifyListeners();
-      _initialize();
-      // videoPlayerController.dispose();
-
-      //  else if () {
-
-      // }
+    videoPlayerController.pause();
+    videoPlayerController.seekTo(const Duration(seconds: 0));
+    videoPlayerController.value = const VideoPlayerValue.uninitialized();
+    final netRegx = RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
+    // final netRegx = new RegExp(r'^(http|https):\/\/([\w.]+\/?)\S*');
+    final isNetwork = netRegx.hasMatch(dataSource);
+    if (isNetwork) {
+      videoPlayerController = VideoPlayerController.network(dataSource,
+          formatHint: formatHint, closedCaptionFile: closedCaptionFile);
+    } else if (dataSource is File) {
+      videoPlayerController = VideoPlayerController.file(file!,
+          closedCaptionFile: closedCaptionFile);
     }
+
+    notifyListeners();
+    _initialize();
   }
 
   void disposeVideoController() {
     // TODO: implement dispose
-    if (videoPlayerController != null) {
-      videoPlayerController.dispose();
-    }
+    videoPlayerController.dispose();
   }
 
   // void changeDataSource(dataSource) {

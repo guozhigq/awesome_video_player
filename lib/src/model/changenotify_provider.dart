@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 // 一个通用的InheritedWidget，保存任需要跨组件共享的状态
 class InheritedProvider<T> extends InheritedWidget {
-  InheritedProvider({@required this.data, Widget child}) : super(child: child);
+  InheritedProvider({required this.data, required Widget child})
+      : super(child: child);
 
   //共享状态使用泛型
   final T data;
@@ -17,13 +18,13 @@ class InheritedProvider<T> extends InheritedWidget {
 // 该方法用于在Dart中获取模板类型
 class ChangeNotifierProvider<T extends ChangeNotifier> extends StatefulWidget {
   ChangeNotifierProvider({
-    Key key,
+    Key? key,
     this.data,
     this.child,
   });
 
-  final Widget child;
-  final T data;
+  final Widget? child;
+  final T? data;
 
   //定义一个便捷方法，方便子树中的widget获取共享数据
   //listen 调用的当前子widget是否重新build
@@ -31,11 +32,11 @@ class ChangeNotifierProvider<T extends ChangeNotifier> extends StatefulWidget {
     final provider = listen
         ? context.dependOnInheritedWidgetOfExactType<InheritedProvider<T>>()
         : context
-            .getElementForInheritedWidgetOfExactType<InheritedProvider<T>>()
+            .getElementForInheritedWidgetOfExactType<InheritedProvider<T>>()!
             .widget as InheritedProvider<T>;
     // final provider =
     //     context.dependOnInheritedWidgetOfExactType<InheritedProvider<T>>();
-    return provider.data;
+    return provider!.data;
   }
 
   @override
@@ -54,8 +55,8 @@ class _ChangeNotifierProviderState<T extends ChangeNotifier>
   void didUpdateWidget(ChangeNotifierProvider<T> oldWidget) {
     //当Provider更新时，如果新旧数据不"=="，则解绑旧数据监听，同时添加新数据监听
     if (widget.data != oldWidget.data) {
-      oldWidget.data.removeListener(update);
-      widget.data.addListener(update);
+      oldWidget.data!.removeListener(update);
+      widget.data!.addListener(update);
     }
     super.didUpdateWidget(oldWidget);
   }
@@ -63,22 +64,22 @@ class _ChangeNotifierProviderState<T extends ChangeNotifier>
   @override
   void initState() {
     // 给model添加监听器
-    widget.data.addListener(update);
+    widget.data!.addListener(update);
     super.initState();
   }
 
   @override
   void dispose() {
     // 移除model的监听器
-    widget.data.removeListener(update);
+    widget.data!.removeListener(update);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return InheritedProvider<T>(
-      data: widget.data,
-      child: widget.child,
+      data: widget.data!,
+      child: widget.child!,
     );
   }
 }

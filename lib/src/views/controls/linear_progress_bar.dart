@@ -10,7 +10,8 @@ typedef VideoProgressDragHandle = void Function(
 class VideoLinearProgressBar extends StatefulWidget {
   VideoLinearProgressBar(
     this.controller, {
-    VideoProgressStyle progressStyle,
+    super.key,
+    VideoProgressStyle? progressStyle,
     this.allowScrubbing,
     this.padding = const EdgeInsets.only(top: 5.0),
     this.onprogressdragStart,
@@ -18,21 +19,22 @@ class VideoLinearProgressBar extends StatefulWidget {
     this.onprogressdragEnd,
   }) : progressStyle = progressStyle ?? VideoProgressStyle();
 
-  final VideoPlayerController controller;
+  final VideoPlayerController? controller;
 
-  final VideoProgressStyle progressStyle;
+  final VideoProgressStyle? progressStyle;
 
-  final bool allowScrubbing;
+  final bool? allowScrubbing;
 
-  final EdgeInsets padding;
+  final EdgeInsets? padding;
 
-  final Function onprogressdragStart;
+  final Function? onprogressdragStart;
 
-  final VideoProgressDragHandle onprogressdragUpdate;
+  final VideoProgressDragHandle? onprogressdragUpdate;
 
-  final Function onprogressdragEnd;
+  final Function? onprogressdragEnd;
 
   @override
+  // ignore: library_private_types_in_public_api
   _VideoLinearProgressBarState createState() => _VideoLinearProgressBarState();
 }
 
@@ -46,21 +48,21 @@ class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
     };
   }
 
-  VoidCallback listener;
+  VoidCallback? listener;
 
-  VideoPlayerController get controller => widget.controller;
+  VideoPlayerController get controller => widget.controller!;
 
-  VideoProgressStyle get style => widget.progressStyle;
+  VideoProgressStyle get style => widget.progressStyle!;
 
   @override
   void initState() {
     super.initState();
-    controller.addListener(listener);
+    controller.addListener(listener!);
   }
 
   @override
   void deactivate() {
-    controller.removeListener(listener);
+    controller.removeListener(listener!);
     super.deactivate();
   }
 
@@ -68,10 +70,10 @@ class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
   Widget build(BuildContext context) {
     return _VideoScrubber(
       controller: controller,
-      handleDragStart: widget.onprogressdragStart,
-      handleDragUpdate: widget.onprogressdragUpdate,
-      handleDragEnd: widget.onprogressdragEnd,
-      allowScrubbing: widget.allowScrubbing,
+      handleDragStart: widget.onprogressdragStart!,
+      handleDragUpdate: widget.onprogressdragUpdate!,
+      handleDragEnd: widget.onprogressdragEnd!,
+      allowScrubbing: widget.allowScrubbing!,
       child: CustomPaint(
         painter: _ProgressBarPainter(controller.value, style),
         child: Container(),
@@ -82,7 +84,7 @@ class _VideoLinearProgressBarState extends State<VideoLinearProgressBar> {
 
 /// 处理进度条手势
 class _VideoScrubber extends StatefulWidget {
-  _VideoScrubber(
+  const _VideoScrubber(
       {@required this.child,
       @required this.controller,
       this.handleDragStart,
@@ -90,12 +92,12 @@ class _VideoScrubber extends StatefulWidget {
       this.handleDragEnd,
       this.allowScrubbing});
 
-  final Widget child;
-  final VideoPlayerController controller;
-  final bool allowScrubbing;
-  final Function handleDragStart;
-  final VideoProgressDragHandle handleDragUpdate;
-  final Function handleDragEnd;
+  final Widget? child;
+  final VideoPlayerController? controller;
+  final bool? allowScrubbing;
+  final Function? handleDragStart;
+  final VideoProgressDragHandle? handleDragUpdate;
+  final Function? handleDragEnd;
 
   @override
   _VideoScrubberState createState() => _VideoScrubberState();
@@ -104,12 +106,12 @@ class _VideoScrubber extends StatefulWidget {
 class _VideoScrubberState extends State<_VideoScrubber> {
   bool _controllerWasPlaying = false;
 
-  VideoPlayerController get controller => widget.controller;
+  VideoPlayerController get controller => widget.controller!;
 
   @override
   Widget build(BuildContext context) {
     void seekToRelativePosition(Offset globalPosition) {
-      final RenderBox box = context.findRenderObject();
+      final RenderBox box = context.findRenderObject() as RenderBox;
       final Offset tapPos = box.globalToLocal(globalPosition);
       final double relative = tapPos.dx / box.size.width;
       final Duration position = controller.value.duration * relative;
@@ -118,23 +120,23 @@ class _VideoScrubberState extends State<_VideoScrubber> {
 
     void emitDragStart() {
       if (widget.handleDragStart != null) {
-        widget.handleDragStart();
+        widget.handleDragStart!();
       }
     }
 
     void emitDragUpdate(globalPosition) {
       if (widget.handleDragUpdate != null) {
-        final RenderBox box = context.findRenderObject();
+        final RenderBox box = context.findRenderObject() as RenderBox;
         final Offset tapPos = box.globalToLocal(globalPosition);
         final double relative = tapPos.dx / box.size.width;
         final Duration position = controller.value.duration * relative;
-        widget.handleDragUpdate(position, controller.value.duration);
+        widget.handleDragUpdate!(position, controller.value.duration);
       }
     }
 
     void emitDragEnd() {
       if (widget.handleDragUpdate != null) {
-        widget.handleDragEnd();
+        widget.handleDragEnd!();
       }
     }
 
@@ -142,7 +144,7 @@ class _VideoScrubberState extends State<_VideoScrubber> {
       behavior: HitTestBehavior.opaque,
       child: widget.child,
       onHorizontalDragStart: (DragStartDetails details) {
-        if (!controller.value.initialized || !widget.allowScrubbing) {
+        if (!controller.value.isInitialized || !widget.allowScrubbing!) {
           return;
         }
         emitDragStart();
@@ -152,7 +154,7 @@ class _VideoScrubberState extends State<_VideoScrubber> {
         }
       },
       onHorizontalDragUpdate: (DragUpdateDetails details) {
-        if (!controller.value.initialized || !widget.allowScrubbing) {
+        if (!controller.value.isInitialized || !widget.allowScrubbing!) {
           return;
         }
         emitDragUpdate(details.globalPosition);
@@ -165,7 +167,7 @@ class _VideoScrubberState extends State<_VideoScrubber> {
         }
       },
       onTapDown: (TapDownDetails details) {
-        if (!controller.value.initialized) {
+        if (!controller.value.isInitialized) {
           return;
         }
         seekToRelativePosition(details.globalPosition);
@@ -202,7 +204,7 @@ class _ProgressBarPainter extends CustomPainter {
       ),
       Paint()..color = style.backgroundColor,
     );
-    if (!value.initialized) {
+    if (!value.isInitialized) {
       return;
     }
     final double playedPartPercent =

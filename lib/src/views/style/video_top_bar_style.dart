@@ -26,5 +26,5 @@ class VideoTopBarStyle {
   final Widget popIcon;
   final List<Widget> contents;
   final List<Widget> actions;
-  final Widget customBar;
+  final Widget? customBar;
 }

@@ -11,7 +11,7 @@ class VideoLoadingStyle {
   });
 
   final Widget customLoadingIcon;
-  final Widget customLoadingText;
+  final Widget? customLoadingText;
   final String loadingText;
   final Color loadingTextFontColor;
   final double loadingTextFontSize;
