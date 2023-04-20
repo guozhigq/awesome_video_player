@@ -323,19 +323,19 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
           runSpacing: 4.0, // 纵轴（垂直）方向间距
           alignment: WrapAlignment.center, //沿主
           children: <Widget>[
-            RaisedButton(
+            ElevatedButton(
               child: Text("start play"),
               onPressed: () {
                 controller.play();
               },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("pause video"),
               onPressed: () {
                 awesomeController.pause();
               },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("forward 5 seconds"),
               onPressed: () {
                 var currentPosition = controller.value.position;
@@ -343,7 +343,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                     .seekTo(Duration(seconds: currentPosition.inSeconds + 5));
               },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("reverse 5 seconds"),
               onPressed: () {
                 var currentPosition = controller.value.position;
@@ -351,7 +351,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                     .seekTo(Duration(seconds: currentPosition.inSeconds - 5));
               },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("update source"),
               onPressed: updateSource,
               // onPressed: () {
@@ -363,13 +363,13 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               //       options: videoPlayerOptions);
               // },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("request FullScreen"),
               onPressed: () {
                 awesomeController.requestFullScreen();
               },
             ),
-            RaisedButton(
+            ElevatedButton(
               child: Text("cancel FullScreen"),
               onPressed: () {
                 awesomeController.exitFullScreen();
@@ -392,7 +392,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                 onChangeEnd: (double newValue) {
                   print('Ended change on $newValue');
                 }),
-            RaisedButton(
+            ElevatedButton(
               child: Text("set volume"),
               onPressed: () {
                 controller.setVolume(playerVolume);

@@ -219,7 +219,7 @@ class _AwesomeVideoPlayerState extends State<AwesomeVideoPlayer>
   Widget _buildFullScreenVideo(BuildContext context,
       Animation<double> animation, ChangeNotifierProvider controllerProvider) {
     return Scaffold(
-      resizeToAvoidBottomPadding: false,
+      resizeToAvoidBottomInset: false,
       body: Container(
         alignment: Alignment.center,
         color: Colors.black,
