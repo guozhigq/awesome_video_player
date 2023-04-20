@@ -1,8 +1,5 @@
-import 'dart:collection';
-import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:awesome_video_player/awesome_video_player.dart';
-import 'package:flutter/services.dart';
 
 class AwesomeVideoPlayerPage extends StatefulWidget {
   @override
@@ -65,7 +62,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return SizedBox(
       width: double.infinity,
       height: double.infinity,
       child: Column(children: <Widget>[
@@ -75,7 +72,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
           /// 自定义视频样式
           videoStyle: VideoStyle(
             /// 自定义视频暂停时视频中部的播放按钮
-            playIcon: Icon(
+            playIcon: const Icon(
               Icons.play_circle_outline,
               size: 80,
               color: Colors.white,
@@ -103,9 +100,9 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
             videoTopBarStyle: VideoTopBarStyle(
               show: true, //是否显示
               height: 30,
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
-              barBackgroundColor: Color.fromRGBO(0, 0, 0, 0.5),
-              popIcon: Icon(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+              barBackgroundColor: const Color.fromRGBO(0, 0, 0, 0.5),
+              popIcon: const Icon(
                 Icons.arrow_back,
                 size: 16,
                 color: Colors.white,
@@ -113,8 +110,8 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               contents: [
                 Center(
                   child: Container(
-                    margin: EdgeInsets.symmetric(horizontal: 10),
-                    child: Text(
+                    margin: const EdgeInsets.symmetric(horizontal: 10),
+                    child: const Text(
                       '123',
                       style: TextStyle(color: Colors.white, fontSize: 14),
                     ),
@@ -131,7 +128,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
 
                     ///
                   },
-                  child: Icon(
+                  child: const Icon(
                     Icons.more_horiz,
                     size: 16,
                     color: Colors.white,
@@ -172,7 +169,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               // barBackgroundColor: Colors.blue,
 
               ///添加边距
-              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 10),
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 10),
 
               ///设置控制拦的高度，默认为30，如果图标设置过大但是高度不够就会出现图标被裁剪的现象
               height: 30,
@@ -196,38 +193,39 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               //     ),
 
               /// 更改进度栏的播放按钮
-              playIcon: Icon(Icons.play_arrow, color: Colors.white, size: 16),
+              playIcon:
+                  const Icon(Icons.play_arrow, color: Colors.white, size: 16),
 
               /// 更改进度栏的暂停按钮
-              pauseIcon: Icon(
+              pauseIcon: const Icon(
                 Icons.pause,
                 color: Colors.white,
                 size: 16,
               ),
 
               /// 更改进度栏的快退按钮
-              rewindIcon: Icon(
+              rewindIcon: const Icon(
                 Icons.replay_30,
                 size: 16,
                 color: Colors.white,
               ),
 
               /// 更改进度栏的快进按钮
-              forwardIcon: Icon(
+              forwardIcon: const Icon(
                 Icons.forward_30,
                 size: 16,
                 color: Colors.white,
               ),
 
               /// 更改进度栏的全屏按钮
-              fullscreenIcon: Icon(
+              fullscreenIcon: const Icon(
                 Icons.fullscreen,
                 size: 20,
                 color: Colors.white,
               ),
 
               /// 更改进度栏的退出全屏按钮
-              fullscreenExitIcon: Icon(
+              fullscreenExitIcon: const Icon(
                 Icons.fullscreen_exit,
                 size: 20,
                 color: Colors.red,
@@ -252,21 +250,23 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               mianTitle: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: EdgeInsets.fromLTRB(10, 0, 10, 30),
+                  padding: const EdgeInsets.fromLTRB(10, 0, 10, 30),
                   child: Text(mainSubtitles,
                       maxLines: 2,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 14)),
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 14)),
                 ),
               ),
               subTitle: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  padding: EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(10),
                   child: Text(subSubtitles,
                       maxLines: 2,
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 14)),
+                      style:
+                          const TextStyle(color: Colors.white, fontSize: 14)),
                 ),
               ),
             ),
@@ -298,7 +298,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                                   showAdvertCover = false;
                                 });
                               },
-                              child: Icon(
+                              child: const Icon(
                                 Icons.cancel,
                                 size: 16,
                                 color: Colors.white,
@@ -307,7 +307,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                           ),
                           Container(
                             alignment: Alignment.center,
-                            child: Text(
+                            child: const Text(
                               "一个广告封面",
                               style: TextStyle(color: Colors.white),
                             ),
@@ -316,7 +316,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                       ),
                     ),
                   )
-                : Align(),
+                : const Align(),
           ],
         ),
         Wrap(
@@ -325,19 +325,19 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
           alignment: WrapAlignment.center, //沿主
           children: <Widget>[
             ElevatedButton(
-              child: Text("start play"),
+              child: const Text("start play"),
               onPressed: () {
                 controller.play();
               },
             ),
             ElevatedButton(
-              child: Text("pause video"),
+              child: const Text("pause video"),
               onPressed: () {
                 awesomeController.pause();
               },
             ),
             ElevatedButton(
-              child: Text("forward 5 seconds"),
+              child: const Text("forward 5 seconds"),
               onPressed: () {
                 var currentPosition = controller.value.position;
                 awesomeController
@@ -345,7 +345,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               },
             ),
             ElevatedButton(
-              child: Text("reverse 5 seconds"),
+              child: const Text("reverse 5 seconds"),
               onPressed: () {
                 var currentPosition = controller.value.position;
                 awesomeController
@@ -353,8 +353,8 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               },
             ),
             ElevatedButton(
-              child: Text("update source"),
               onPressed: updateSource,
+              child: const Text("update source"),
               // onPressed: () {
               //   controller?.pause();
               //   controller?.seekTo(Duration(seconds: 0));
@@ -365,13 +365,13 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               // },
             ),
             ElevatedButton(
-              child: Text("request FullScreen"),
+              child: const Text("request FullScreen"),
               onPressed: () {
                 awesomeController.requestFullScreen();
               },
             ),
             ElevatedButton(
-              child: Text("cancel FullScreen"),
+              child: const Text("cancel FullScreen"),
               onPressed: () {
                 awesomeController.exitFullScreen();
               },
@@ -404,7 +404,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                   print('Ended change on $newValue');
                 }),
             ElevatedButton(
-              child: Text("set volume"),
+              child: const Text("set volume"),
               onPressed: () {
                 controller.setVolume(playerVolume);
               },
@@ -429,7 +429,7 @@ class _MyAppState extends State<MyApp> {
     return MaterialApp(
         home: Scaffold(
       appBar: AppBar(
-        title: Text("Awesome Video Player"),
+        title: const Text("Awesome Video Player"),
       ),
       body: AwesomeVideoPlayerPage(),
     ));
