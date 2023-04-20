@@ -25,11 +25,12 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
   void updateSource() {
     awesomeController.dispose();
     controller.pause();
-    controller.seekTo(const Duration(seconds: 0));
-    controller =
-        VideoPlayerController.network("https://abc.com/20230114/mixed.m3u8");
+    controller = VideoPlayerController.network(
+        "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8");
     awesomeController = AwesomeVideoController(
         videoPlayerController: controller, options: videoPlayerOptions);
+    setState(() {});
+    awesomeController.seekTo(const Duration(seconds: 50));
   }
 
   @override
@@ -47,7 +48,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
     );
 
     controller = VideoPlayerController.network(
-        "https://www.runoob.com/try/demo_source/movie.mp4");
+        "http://devimages.apple.com/iphone/samples/bipbop/bipbopall.m3u8");
 
     awesomeController = AwesomeVideoController(
         videoPlayerController: controller, options: videoPlayerOptions);
@@ -91,7 +92,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               // 设置Loading icon 下方的文字
               loadingText: "Loading...",
               // 设置loading icon 下方的文字颜色
-              loadingTextFontColor: Colors.white,
+              loadingTextFontColor: Colors.black,
               // 设置loading icon 下方的文字大小
               loadingTextFontSize: 20,
             ),

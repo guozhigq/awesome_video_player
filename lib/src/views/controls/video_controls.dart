@@ -41,7 +41,7 @@ class PlayerControls extends StatefulWidget {
 }
 
 class _PlayerControlsState extends State<PlayerControls>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   VideoPlayerValue? _latestValue;
   VideoPlayerController? controller;
   AwesomeVideoController? awesomeController;
