@@ -271,6 +271,7 @@ class _PlayerControlsState extends State<PlayerControls>
 
   @override
   void didChangeDependencies() {
+    print('🌹：123');
     final _oldController = awesomeController;
     awesomeController =
         ChangeNotifierProvider.of<AwesomeVideoController>(context);
@@ -420,42 +421,43 @@ class _PlayerControlsState extends State<PlayerControls>
                       // 左侧垂直滑动 - 亮度调节
                       brightness = brightness ??
                           await DeviceDisplayBrightness.getBrightness();
-                    }
-                    if (details.primaryDelta! > 0) {
-                      //往下滑动
-                      if (brightness! <= 0) {
-                        brightness = 0;
+
+                      if (details.primaryDelta! > 0) {
+                        //往下滑动
+                        if (brightness! <= 0) {
+                          brightness = 0;
+                        } else {
+                          brightness = brightness! -
+                                      awesomeController!
+                                          .options.brightnessGestureUnit <=
+                                  0
+                              ? 0
+                              : brightness! -
+                                  awesomeController!
+                                      .options.brightnessGestureUnit;
+                        }
+                        // if (widget.onbrightness != null) {
+                        //   widget.onbrightness(brightness);
+                        // }
                       } else {
-                        brightness = brightness! -
-                                    awesomeController!
-                                        .options.brightnessGestureUnit <=
-                                0
-                            ? 0
-                            : brightness! -
-                                awesomeController!
-                                    .options.brightnessGestureUnit;
+                        //往上滑动
+                        if (brightness! >= 1) {
+                          brightness = 1;
+                        } else {
+                          brightness = brightness! +
+                              awesomeController!.options.brightnessGestureUnit;
+                        }
+                        // if (widget.onbrightness != null) {
+                        //   widget.onbrightness(brightness);
+                        // }
                       }
-                      // if (widget.onbrightness != null) {
-                      //   widget.onbrightness(brightness);
-                      // }
-                    } else {
-                      //往上滑动
-                      if (brightness! >= 1) {
-                        brightness = 1;
-                      } else {
-                        brightness = brightness! +
-                            awesomeController!.options.brightnessGestureUnit;
-                      }
-                      // if (widget.onbrightness != null) {
-                      //   widget.onbrightness(brightness);
-                      // }
+                      setState(() {
+                        toastPosition = Alignment.centerLeft;
+                        toastBrightnessValue = brightness;
+                      });
+                      DeviceDisplayBrightness.setBrightness(brightness!);
+                      // Screen.setBrightness(brightness);
                     }
-                    setState(() {
-                      toastPosition = Alignment.centerLeft;
-                      toastBrightnessValue = brightness;
-                    });
-                    DeviceDisplayBrightness.setBrightness(brightness!);
-                    // Screen.setBrightness(brightness);
                   },
                   onVerticalDragEnd: (DragEndDetails details) {
                     setState(() {
