@@ -376,6 +376,16 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                 awesomeController.exitFullScreen();
               },
             ),
+            ElevatedButton(
+              child: Text(showAdvertCover
+                  ? "hidden custom widget"
+                  : "show custom widget"),
+              onPressed: () {
+                setState(() {
+                  showAdvertCover = !showAdvertCover;
+                });
+              },
+            ),
             Slider(
                 label: 'Slider $playerVolume',
                 min: 0,

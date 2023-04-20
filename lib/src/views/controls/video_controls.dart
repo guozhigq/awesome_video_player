@@ -492,6 +492,10 @@ class _PlayerControlsState extends State<PlayerControls>
           _buildToastView(context),
           //
           _buildLoadingView(context),
+          // 自定义拓展元素
+          if (widget.children != null && widget.children!.isNotEmpty) ...[
+            ...widget.children!
+          ]
         ],
       ),
     );
