@@ -324,6 +324,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
           runSpacing: 4.0, // 纵轴（垂直）方向间距
           alignment: WrapAlignment.center, //沿主
           children: <Widget>[
+            const Divider(),
             ElevatedButton(
               child: const Text("start play"),
               onPressed: () {
@@ -336,6 +337,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                 awesomeController.pause();
               },
             ),
+            const Divider(),
             ElevatedButton(
               child: const Text("forward 5 seconds"),
               onPressed: () {
@@ -352,6 +354,20 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                     .seekTo(Duration(seconds: currentPosition.inSeconds - 5));
               },
             ),
+            const Divider(),
+            ElevatedButton(
+              child: const Text("request FullScreen"),
+              onPressed: () {
+                awesomeController.requestFullScreen();
+              },
+            ),
+            ElevatedButton(
+              child: const Text("cancel FullScreen"),
+              onPressed: () {
+                awesomeController.exitFullScreen();
+              },
+            ),
+            const Divider(),
             ElevatedButton(
               onPressed: updateSource,
               child: const Text("update source"),
@@ -365,18 +381,6 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               // },
             ),
             ElevatedButton(
-              child: const Text("request FullScreen"),
-              onPressed: () {
-                awesomeController.requestFullScreen();
-              },
-            ),
-            ElevatedButton(
-              child: const Text("cancel FullScreen"),
-              onPressed: () {
-                awesomeController.exitFullScreen();
-              },
-            ),
-            ElevatedButton(
               child: Text(showAdvertCover
                   ? "hidden custom widget"
                   : "show custom widget"),
@@ -386,6 +390,7 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
                 });
               },
             ),
+            const Divider(),
             Slider(
                 label: 'Slider $playerVolume',
                 min: 0,
@@ -408,7 +413,20 @@ class _AwesomeVideoPlayerPageState extends State<AwesomeVideoPlayerPage> {
               onPressed: () {
                 controller.setVolume(playerVolume);
               },
-            )
+            ),
+            const Divider(),
+            ElevatedButton(
+              child: const Text("set play speed x1.0"),
+              onPressed: () {
+                controller.setPlaybackSpeed(1.0);
+              },
+            ),
+            ElevatedButton(
+              child: const Text("set play speed x2.0"),
+              onPressed: () {
+                controller.setPlaybackSpeed(2.0);
+              },
+            ),
           ],
         )
       ]),
