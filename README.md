@@ -1,14 +1,17 @@
-# awesome_video_player
+### awesome_video_player
+### 注意，原作者最后版本2.0.0是在next分支，所以fork后默认分支为next，基于该分支进行修改。
+### 使用文档见：<https://github.com/chudongvip/awesome_video_player>
 
-A new Flutter package project.
+<br />
 
-## Getting Started
-
-This project is a starting point for a Dart
-[package](https://flutter.dev/developing-packages/),
-a library module containing code that can be shared easily across
-multiple Flutter or Dart projects.
-
-For help getting started with Flutter, view our 
-[online documentation](https://flutter.dev/docs), which offers tutorials, 
-samples, guidance on mobile development, and a full API reference.
+## 如何使用
+在 **pubspec.yaml** 中添加
+```dart
+dependencies:
+  flutter:
+    sdk: flutter
+  ... ...
+  video_player:
+    git:
+      url: https://github.com/guozhigq/awesome_video_player
+```
