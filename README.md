@@ -18,7 +18,7 @@ dependencies:
   flutter:
     sdk: flutter
   ... ...
-  video_player:
+  awesome_video_player:
     git:
       url: https://github.com/guozhigq/awesome_video_player
 ```
